@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "627464616660",
+    "firebase_url": "https://devidied-6fcc4.firebaseio.com",
+    "project_id": "devidied-6fcc4",
+    "storage_bucket": "devidied-6fcc4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627464616660:android:8527e2b45ddaa10273d941",
+        "android_client_info": {
+          "package_name": "com.dividedapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "627464616660-9tb7jcl2j0pcvehkpni0jh5ohpk4rb2m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dividedapp",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "627464616660-j8jc75m4u2ob4pb18rb24rs19lvjhdsi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5UuigJnfbEaCiSnRdx_I8876NaY08660"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "627464616660-j8jc75m4u2ob4pb18rb24rs19lvjhdsi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

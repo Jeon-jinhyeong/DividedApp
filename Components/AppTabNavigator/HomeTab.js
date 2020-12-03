@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, LogBox } from 'react-native';
 import { database } from '@react-native-firebase/database';
 import * as firebase from 'firebase';
+import BackgroundTimer from 'react-native-background-timer';
 
 // const ref = Database().ref('/');
 
@@ -23,20 +24,30 @@ const firebaseApp = firebase.initializeApp(firebaseConfig);
 // });
 
 export default class HomeTab extends Component {
-
+    
     constructor(props){
         super(props);
         this.state={ 
             list:[],
         }
+        this.index = 0
+        
     }
 
+    componetWillMount() {
+        
+    }
+
+
     componentDidMount() {
-        firebaseApp.database().ref('/Stuck').on('value', snapshot => {
+        firebaseApp.database().ref('/Stuck').once('value', snapshot => {
             var li = []
             snapshot.forEach((child) => {
+                this.index = this.index + 1;
                 li.push({
+                    id: this.index,
                     name: child.val().name,
+                    lockday: child.val().one.lockday,
                 })
             })
             this.setState({list:li})
@@ -45,18 +56,65 @@ export default class HomeTab extends Component {
     }
 
     render() {
+
+        // const _setTimeout = global.setTimeout;
+        // const _clearTimeout = global.clearTimeout;
+        // const MAX_TIMER_DURATION_MS = 60 * 1000;
+        // if (Platform.OS === "android") {
+        //   // Work around issue `Setting a timer for long time`
+        //   // see: https://github.com/firebase/firebase-js-sdk/issues/97
+        //   const timerFix = {};
+        //   const runTask = (id, fn, ttl, args) => {
+        //     const waitingTime = ttl - Date.now();
+        //     if (waitingTime <= 1) {
+        //       InteractionManager.runAfterInteractions(() => {
+        //         if (!timerFix[id]) {
+        //           return;
+        //         }
+        //         delete timerFix[id];
+        //         fn(...args);
+        //       });
+        //       return;
+        //     }
+    
+        //     const afterTime = Math.min(waitingTime, MAX_TIMER_DURATION_MS);
+        //     timerFix[id] = _setTimeout(() => runTask(id, fn, ttl, args), afterTime);
+        //   };
+    
+        //   global.setTimeout = (fn, time, ...args) => {
+        //     if (MAX_TIMER_DURATION_MS < time) {
+        //       const ttl = Date.now() + time;
+        //       const id = "_lt_" + Object.keys(timerFix).length;
+        //       runTask(id, fn, ttl, args);
+        //       return id;
+        //     }
+        //     return _setTimeout(fn, time, ...args);
+        //   };
+    
+        //   global.clearTimeout = (id) => {
+        //     if (typeof id === "string" && id.startsWith("_lt_")) {
+        //       _clearTimeout(timerFix[id]);
+        //       delete timerFix[id];
+        //       return;
+        //     }
+        //     _clearTimeout(id);
+        //   };
+        // }
+
         return (
             <View style={style.container}>
                 <FlatList style={{width:'100%'}}
                     data={this.state.list}
-                    keyExtractor={(item)=>item.key}
+                    keyExtractor={(item)=> item.id.toString()}
                     renderItem={({item})=>{
                         return(
-                            <View>
+                            <View style={{borderWidth: 1, borderRadius: 8, padding: 8, margin: 8, backgroundColor: 'white'}}>
                                 <Text>{item.name}</Text>
+                                <Text>배당락일 : {item.lockday}</Text>
                             </View>
                         )
-                }}/>
+                    }}
+                />
             </View>
         );
     }

@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.oblador.vectoricons.VectorIconsPackage;
+import com.jamesisaac.rnbackgroundtask.BackgroundTaskPackage;
 import com.ocetnik.timer.BackgroundTimerPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
@@ -48,6 +50,7 @@ public class MainApplication extends Application implements ReactApplication {
   @Override
   public void onCreate() {
     super.onCreate();
+    BackgroundTaskPackage.useContext(this);
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
   }

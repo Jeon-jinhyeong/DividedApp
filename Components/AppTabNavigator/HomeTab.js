@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, FlatList, LogBox } from 'react-native';
+import { View, StyleSheet, FlatList, LogBox, Text } from 'react-native';
 import { database } from '@react-native-firebase/database';
 import * as firebase from 'firebase';
+import { Avatar, Button, Card, Title, Paragraph } from 'react-native-paper';
 import BackgroundTimer from 'react-native-background-timer';
+import BackgroundTask from 'react-native-background-task';
+import dayjs from 'dayjs';
 
 // const ref = Database().ref('/');
 
@@ -17,11 +20,15 @@ const firebaseConfig = {
     measurementId: "G-E29H3EYNRD"
 };
 
-const firebaseApp = firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+ }
 
 // firebaseApp.database().ref('/Stuck').on('value', snapshot => {
 //     console.log("User Data: ", snapshot.val());
 // });
+
+
 
 export default class HomeTab extends Component {
     
@@ -29,30 +36,55 @@ export default class HomeTab extends Component {
         super(props);
         this.state={ 
             list:[],
-        }
-        this.index = 0
-        
+            refreshing: false,
+            index: 0,
+        }       
     }
 
-    componetWillMount() {
-        
-    }
-
-
-    componentDidMount() {
-        firebaseApp.database().ref('/Stuck').once('value', snapshot => {
+    _getData = async () => {
+        firebase.database().ref('/Stuck').on('value', snapshot => {
             var li = []
             snapshot.forEach((child) => {
-                this.index = this.index + 1;
+                this.state.index = this.state.index + 1
+                const lockday_replace = child.val().one.lockday.replace('년 ', '-')
+                const lockday_replace_2 = lockday_replace.replace('월 ', '-')
+                const lockday_replace_3 = lockday_replace_2.replace('일', '')
+                const paymentday_replace = child.val().one.paymentday.replace('년 ', '-')
+                const paymentday_replace_2 = paymentday_replace.replace('월 ', '-')
+                const paymentday_replace_3 = paymentday_replace_2.replace('일', '')
                 li.push({
-                    id: this.index,
+                    id: this.state.index,
                     name: child.val().name,
-                    lockday: child.val().one.lockday,
+                    lockday: lockday_replace_3,
+                    paymentday: paymentday_replace_3,
+                    divided: child.val().one.divided,
+                    revenue: child.val().one.revenue,
                 })
             })
             this.setState({list:li})
             // console.log("User Data: ", snapshot.val());
         });
+    }
+
+    _handleLoadMore = () => {
+        this._getData();
+    }
+
+    _handleRefresh = () => {
+        this.setState({
+            list:[],
+            refreshing: true,
+            index: 1,
+        }, this._getData);
+    }
+
+    componetWillMount() {
+
+    }
+
+
+    componentDidMount() {
+        this._getData();
     }
 
     render() {
@@ -108,12 +140,69 @@ export default class HomeTab extends Component {
                     keyExtractor={(item)=> item.id.toString()}
                     renderItem={({item})=>{
                         return(
-                            <View style={{borderWidth: 1, borderRadius: 8, padding: 8, margin: 8, backgroundColor: 'white'}}>
-                                <Text>{item.name}</Text>
-                                <Text>배당락일 : {item.lockday}</Text>
+                            <View style={style.flatlist_container}>
+                                <View style={style.container_title}>
+                                    <View >
+                                        <Text style={style.title}>
+                                            {item.name}
+                                        </Text>
+                                    </View>
+                                </View>
+                                <View style={style.table}>
+                                    <View style={style.container_data}>
+                                        <View style={style.container_description}>
+                                            <Text style={style.description}>
+                                                배당락일
+                                            </Text>
+                                        </View>
+                                        <View style={style.container_description}>
+                                            <Text style={style.description}>
+                                                배당
+                                            </Text>
+                                        </View>
+                                        <View style={style.container_description}>
+                                            <Text style={style.description}>
+                                                배당일
+                                            </Text>
+                                        </View>
+                                        <View style={style.container_description}>
+                                            <Text style={style.description}>
+                                                수익률
+                                            </Text>
+                                        </View>
+                                    </View>
+                                    <View style={style.container_data}>
+                                    <View style={style.container_description}>
+                                            <Text style={style.description}>
+                                                {item.lockday}
+                                            </Text>
+                                        </View>
+                                        <View style={style.container_description}>
+                                            <Text style={style.description}>
+                                                {item.divided}
+                                            </Text>
+                                        </View>
+                                        <View style={style.container_description}>
+                                            <Text style={style.description}>
+                                                {item.paymentday}
+                                            </Text>
+                                        </View>
+                                        <View style={style.container_description}>
+                                            <Text style={style.description}>
+                                                {item.revenue}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </View> 
+                                
+                                
                             </View>
                         )
                     }}
+                    onEndReached={this._handleLoadMore}
+                    onEndReachedThreshold={1}
+                    refreshing={this.state.refreshing}
+                    // onRefresh={this._handleRefresh}
                 />
             </View>
         );
@@ -125,5 +214,41 @@ const style = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    flatlist_container: {
+        flex: 1,
+        flexDirection: 'column',
+        padding: 5,
+        backgroundColor: '#FFF',
+        elevation: 5,
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#000',
+        marginLeft: 12,
+    },
+    container_title: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+    container_data: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+    container_description: {
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    description: {
+        fontSize: 15,
+    },
+    table: {
+        marginTop: 8,
+        marginBottom: 8,
     }
 });
